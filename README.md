@@ -1,5 +1,19 @@
 # Markdown interpreter
 
+## Forked Form [duangao](https://github.com/duangao/Markdown)
+**changes:**
++ horizen line
++ link
++ support both [LF,CRLF,CR]
++ fix unnatural expression &lt;/li&gt;&lt;/ul&gt;&lt;ul&gt;&lt;li&gt; in unordered list
++ '\n\n' -> '\n\n&lt;br/&gt;&lt;br/&gt;'
++ '&nbsp;&nbsp;\n' -> '&nbsp;&nbsp;\n&lt;br/&gt;'
++ merge blockquote
+
+ *only change for Windows*
+
+------------------------
+
 ## Install
 
 ### For Linux
@@ -20,7 +34,7 @@
 ## Usage
 Markdown source_file [options]
 
-**options:**
+ **options:**
 + -h, --help: 
 	show you the help messages
 + -o, --output + [dest_html_file]:
@@ -47,7 +61,10 @@ Markdown source_file [options]
 ```
 + horizen line 
 ```
-At least three '-' are needed.
+1.At least three '-' are needed.
+2.'- - -'
+3.At least three '*' are needed.
+4.'* * *'
 ```
 + Unordered list
 > +,*,- are okay.
@@ -72,7 +89,7 @@ And you can nest them.
 
 + Link and image
 ```
- \[text](url)
+ [text](url)
  ![image](url)
 ```
 

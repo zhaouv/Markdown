@@ -48,7 +48,7 @@ def test_state(input):
         result="<blockquote>"
         block_state=BLOCK.Block
 
-    elif len(input)>4 and input[0:3]=='```' and (input[3:9]=="python" or input[3:6]=="c++" or input[3:4]=="c") and block_state==BLOCK.Init:
+    elif len(input)>4 and input[0:3]=='```' and (input[3:4]=="c" or input[3:6]=="c++" or input[3:9]=="python") and block_state==BLOCK.Init:
         block_state=BLOCK.Block
         result="<code></br>"
         is_code=True
@@ -180,22 +180,21 @@ def tokenHandle(s):
     return s
 
 def link_image(s):
-    pattern=re.compile(r'\\\[(.*)\]\((.*)\)')
-    match=pattern.finditer(s)
-    for a in match:
-        if a:
-            text,url=a.group(1,2)
-            x,y=a.span()
-            s=s[:x]+"<a href="+url+" target=\"_blank\">"+text+"</a>"+s[y:]
-
-
     pattern=re.compile(r'!\[(.*)\]\((.*)\)')
     match=pattern.finditer(s)
     for a in match:
         if a:
             text,url=a.group(1,2)
             x,y=a.span()
-            s=s[:x]+"<img src="+url+" target=\"_blank\">"+"</a>"+s[y:]
+            s=s[:x]+"<img src="+url+">"+"</a>"+s[y:]
+
+    pattern=re.compile(r'\[(.*)\]\((.*)\)')
+    match=pattern.finditer(s)
+    for a in match:
+        if a:
+            text,url=a.group(1,2)
+            x,y=a.span()
+            s=s[:x]+"<a href="+url+">"+text+"</a>"+s[y:]
 
     pattern=re.compile(r'(.)\^\[([^\]]*)\]')
     match=pattern.finditer(s)
@@ -239,9 +238,10 @@ def parse(input):
     # END
 
     #BEGIN: horizen line 
-    if len(input)>2 and all_same(input[:-1],'-') and input[-1]=='\n':
-        result="<hr>"
-        return result
+    for i in ['-','*']:
+        if len(input)>2 and all_same(input[:-1:2],i) and input[-1]=='\n':
+            result="<hr>"
+            return result
     #END
 
     # BEGIN: unordered list
@@ -328,6 +328,8 @@ def run(source_file,dest_file,dest_pdf_file,only_pdf):
     dest_name=dest_file
     dest_pdf_name=dest_pdf_file
 
+    foutstr=""
+
     name,suffix=os.path.splitext(file_name)
     if suffix not in [".md",".markdown",".mdown","mkd"]:
         print_usage()
@@ -341,29 +343,36 @@ def run(source_file,dest_file,dest_pdf_file,only_pdf):
 
 
     f_r=codecs.open(dest_name,encoding="utf-8",mode="w")
-    f_r.write("<style type=\"text/css\">div {display: block;font-family: \"Times New Roman\",Georgia,Serif}\
+    foutstr+=("<style type=\"text/css\">div {display: block;font-family: \"Times New Roman\",Georgia,Serif}\
           #wrapper { width: 100%;height:100%; margin: 0; padding: 0;}#left { float:left; \
          width: 10%;  height: 100%;  }#second {   float:left;   width: 80%;height: 100%;   \
         }#right {float:left;  width: 10%;  height: 100%; \
         }</style><div id=\"wrapper\"> <div id=\"left\"></div><div id=\"second\">")
-    f_r.write("<meta charset=\"utf-8\"/>")
+    foutstr+=("<meta charset=\"utf-8\"/>")
     
     for eachline in f:
-        eachline=eachline[0:-2]+eachline[-1]
-        
+        if eachline[-2:-1] and eachline[-2:-1]=='\r': #CRLF -> LF
+            eachline=eachline[0:-2]+eachline[-1]
+
+        if eachline[-1:] and eachline[-1:]=='\r': #CR -> LF
+            eachline=eachline[0:-1]+'\n'
+
         result=parse(eachline)
         
         if result!="":
-            f_r.write(result)
+            foutstr+=(result)
 
-    f_r.write("</br></br></div><div id=\"right\"></div></div>")
+    foutstr+=("</br></br></div><div id=\"right\"></div></div>")
 
     global need_mathjax
     if need_mathjax:
-        f_r.write("<script type=\"text/x-mathjax-config\">\
+        foutstr+=("<script type=\"text/x-mathjax-config\">\
   MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']]}});</script><script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>")
+    foutstr=foutstr.replace(r'</li></ul><ul><li>',r'</li><li>').replace(r'</blockquote> <blockquote style="color:#8fbc8f">',r'<br/>').replace('\n\n','\n\n<br/><br/>').replace('  \n','  \n<br/>')
+    f_r.write(foutstr)
     f_r.close()
     f.close()
+    
 
     if dest_pdf_name != "" or only_pdf:
         call(["wkhtmltopdf",dest_name,dest_pdf_name])

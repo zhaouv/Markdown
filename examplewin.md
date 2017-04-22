@@ -13,8 +13,8 @@ Paragraphs can be written like so. A paragraph is the basic block of Markdown. A
 ### Ordered list
 
 1. Item 1
-2. A second item
-3. Number 3
+5. A second item
+4. Number 3
 
 ### Unordered list
 
@@ -40,7 +40,9 @@ There are six levels of headings. They correspond with the six levels of HTML he
 - ~~delete~~  ~~*deleteItatic*~~ normal
 
 ## Link
- website: \[mygithub](https://github.com/duangao)
+ website: 
+* [duangao's github](https://github.com/duangao) 
+* [mygithub](https://github.com/zhaouv)
 ## Picture
   ![image](http://7xi9ka.com1.z0.glb.clouddn.com/duangao.jpg)
  
@@ -69,8 +71,6 @@ cell^[7]|cell^[8]|cell^[9]
 
 When $a \ne 0$, there are two solutions to \(ax^2 + bx + c = 0\) and they are
 $$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
-
-
 
 ## More
 + check unordered list agagin
