@@ -9,6 +9,8 @@
 + '\n\n' -> '\n\n&lt;br/&gt;&lt;br/&gt;'
 + '&nbsp;&nbsp;\n' -> '&nbsp;&nbsp;\n&lt;br/&gt;'
 + merge blockquote
++ fix bug in img
++ using [github-markdown-css](https://github.com/sindresorhus/github-markdown-css)
 
  *only change for Windows*
 
@@ -40,7 +42,7 @@ Markdown source_file [options]
 + -o, --output + [dest_html_file]:
 	Set output in specific HTML file
 	Default name is "default_output.html"
-+ -p, --print + dest_pdf_file:	
++ -p, --print + dest_pdf_file:  
 	Set output in specific PDF file.
 
 > Warning: If you use this option, you must use -o meanwhile.
@@ -51,16 +53,17 @@ Markdown source_file [options]
 ## Feature 
 + Six ranks title 
 ```
-	# ---------h1
-	##---------h2
-	###--------h3
-	####-------h4
-	#####------h5
-	######-----h6
+    # ---------h1
+    ##---------h2
+    ###--------h3
+    ####-------h4
+    #####------h5
+    ######-----h6
 
 ```
 + horizen line 
 ```
+one of these
 1.At least three '-' are needed.
 2.'- - -'
 3.At least three '*' are needed.

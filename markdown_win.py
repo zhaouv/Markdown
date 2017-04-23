@@ -45,19 +45,19 @@ def test_state(input):
 
     # BEGIN: block and code block
     if a and block_state==BLOCK.Init:
-        result="<blockquote>"
+        result="<pre><code>"
         block_state=BLOCK.Block
 
     elif len(input)>4 and input[0:3]=='```' and (input[3:4]=="c" or input[3:6]=="c++" or input[3:9]=="python") and block_state==BLOCK.Init:
         block_state=BLOCK.Block
-        result="<code></br>"
+        result="<pre><code codetype=\""+input[3:-1]+"\">"
         is_code=True
 
     elif block_state==BLOCK.Block and a:
         if is_code:
-            result="</code>"
+            result="</code></pre>"
         else:
-            result="</blockquote>"
+            result="</code></pre>"
         block_state=BLOCK.Init
         is_code=False
 
@@ -66,7 +66,7 @@ def test_state(input):
         result=pattern.sub("&nbsp",result)
         pattern=re.compile(r'\t')
         result=pattern.sub("&nbsp"*4,result)
-        result="<span>"+result+"</span></br>"
+        result="<p>"+result+"</p>"
         return result
     # END
 
@@ -108,7 +108,7 @@ def test_state(input):
                 result+="</tr>"
                 result+="</thread><tbody>"
             else:
-                result=temp_table_first_line_str+"</br>"+input
+                result=temp_table_first_line_str+"<br/>"+input
                 table_state=TABLE.Init
 
         elif table_state==TABLE.Table:
@@ -186,7 +186,7 @@ def link_image(s):
         if a:
             text,url=a.group(1,2)
             x,y=a.span()
-            s=s[:x]+"<img src="+url+">"+"</a>"+s[y:]
+            s=s[:x]+"<img src="+url+" alt=\""+text+"\" />"+s[y:]
 
     pattern=re.compile(r'\[(.*)\]\((.*)\)')
     match=pattern.finditer(s)
@@ -219,9 +219,10 @@ def link_image(s):
 
 def parse(input):
     result=input
-
     result=test_state(input)
-    
+
+    pattern=re.compile(r'\t')
+    result=pattern.sub("&nbsp"*4,result)
 
     global block_state
     if block_state==BLOCK.Block :
@@ -259,7 +260,7 @@ def parse(input):
         sys_q=True
     if sys_q:
     
-        result=" <blockquote style=\"color:#8fbc8f\"> "*count+"<b>"+input[count:]+"</b>"+"</blockquote>"*count
+        result=" <blockquote> "*count+"<p>"+input[count:]+"</p>"+"</blockquote>"*count
 
 
     # BEGIN: token replace,while title and list don't use it,so put it behind them.
@@ -323,7 +324,7 @@ def main():
 
 
 
-def run(source_file,dest_file,dest_pdf_file,only_pdf):
+def run(source_file,dest_file,dest_pdf_file="",only_pdf=False):
     file_name=source_file
     dest_name=dest_file
     dest_pdf_name=dest_pdf_file
@@ -343,12 +344,18 @@ def run(source_file,dest_file,dest_pdf_file,only_pdf):
 
 
     f_r=codecs.open(dest_name,encoding="utf-8",mode="w")
-    foutstr+=("<style type=\"text/css\">div {display: block;font-family: \"Times New Roman\",Georgia,Serif}\
-          #wrapper { width: 100%;height:100%; margin: 0; padding: 0;}#left { float:left; \
-         width: 10%;  height: 100%;  }#second {   float:left;   width: 80%;height: 100%;   \
-        }#right {float:left;  width: 10%;  height: 100%; \
-        }</style><div id=\"wrapper\"> <div id=\"left\"></div><div id=\"second\">")
-    foutstr+=("<meta charset=\"utf-8\"/>")
+    foutstr+=("""<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="github-markdown.css">
+<!--https://github.com/sindresorhus/github-markdown-css-->
+<style>.markdownboard{box-sizing:border-box;border: 1px solid #ddd;border-radius: 3px;min-width:200px;max-width:980px;margin:0 auto;padding:45px;}</style>
+</head>
+<body>
+<div class="markdownboard"><article class="markdown-body">
+""")
+
     
     for eachline in f:
         if eachline[-2:-1] and eachline[-2:-1]=='\r': #CRLF -> LF
@@ -362,13 +369,20 @@ def run(source_file,dest_file,dest_pdf_file,only_pdf):
         if result!="":
             foutstr+=(result)
 
-    foutstr+=("</br></br></div><div id=\"right\"></div></div>")
+    foutstr+=("</article></div>\n")
 
     global need_mathjax
     if need_mathjax:
         foutstr+=("<script type=\"text/x-mathjax-config\">\
-  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']]}});</script><script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>")
-    foutstr=foutstr.replace(r'</li></ul><ul><li>',r'</li><li>').replace(r'</blockquote> <blockquote style="color:#8fbc8f">',r'<br/>').replace('\n\n','\n\n<br/><br/>').replace('  \n','  \n<br/>')
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']]}});</script><script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>\n")
+    foutstr+=("</body></html>")
+    
+    foutstr=foutstr.replace('</blockquote> <blockquote>','<br/>')
+    foutstr=foutstr.replace('</li></ul><ul><li>','</li><li>')
+    foutstr=foutstr.replace('</p><p>','<br/>')
+    foutstr=foutstr.replace('</p><br/> <p>','<br/>')
+    foutstr=foutstr.replace('\n\n','<br/>\n<br/>\n').replace('  \n','  <br/>\n')
+
     f_r.write(foutstr)
     f_r.close()
     f.close()
