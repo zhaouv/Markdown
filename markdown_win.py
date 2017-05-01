@@ -25,6 +25,7 @@ table_state=TABLE.Init
 orderList_state=ORDERLIST.Init
 block_state=BLOCK.Init
 is_code=False
+is_paragraph=False
 
 temp_table_first_line=[]
 temp_table_first_line_str=""
@@ -36,7 +37,7 @@ need_mathjax=False
 
 def test_state(input):
     Code_List=["python\n","c++\n","bash\n","c\n"]
-    global table_state,orderList_state,block_state,is_code,temp_table_first_line,temp_table_first_line_str
+    global table_state,orderList_state,block_state,is_code,temp_table_first_line,temp_table_first_line_str,is_paragraph
 
     result=input
 
@@ -101,12 +102,12 @@ def test_state(input):
         elif table_state==TABLE.Format :
             if reduce(lambda a,b:a and b,[all_same(i,'-') for i in l],True):
                 table_state=TABLE.Table
-                result="<table><thread><tr>"
+                result="<table><thead><tr>"
            
                 for i in temp_table_first_line:
                     result+="<th>"+i+"</th>"
                 result+="</tr>"
-                result+="</thread><tbody>"
+                result+="</thead><tbody>"
             else:
                 result=temp_table_first_line_str+"<br/>"+input
                 table_state=TABLE.Init
@@ -125,6 +126,8 @@ def test_state(input):
 
     #END
 
+    if result==input:
+        is_paragraph=True
     
     return result
 
@@ -218,6 +221,9 @@ def link_image(s):
 
 
 def parse(input):
+    global is_paragraph
+    is_paragraph=False
+
     result=input
     result=test_state(input)
 
@@ -236,6 +242,7 @@ def parse(input):
             break
     if title_rank!=0:
         result=handleTitle(input,title_rank)
+        is_paragraph=False
     # END
 
     #BEGIN: horizen line 
@@ -249,6 +256,7 @@ def parse(input):
     unorderd=['+','*','-']
     if result != "" and result[0] in unorderd :
         result=handleUnorderd(result)
+        is_paragraph=False
     # END
 
     f=input[0]
@@ -259,8 +267,14 @@ def parse(input):
         f=input[count]
         sys_q=True
     if sys_q:
-    
+        
         result=" <blockquote> "*count+"<p>"+input[count:]+"</p>"+"</blockquote>"*count
+        is_paragraph=False
+
+    # BEGIN: paragraph
+    if is_paragraph:
+        result="<p>"+result+"</p> "
+    #END
 
 
     # BEGIN: token replace,while title and list don't use it,so put it behind them.
@@ -377,11 +391,14 @@ def run(source_file,dest_file,dest_pdf_file="",only_pdf=False):
     MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']]}});</script><script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>\n")
     foutstr+=("</body></html>")
     
+    foutstr=foutstr.replace('</p> <p>','')
+    foutstr=foutstr.replace('<p>\n</p> ','\n')
     foutstr=foutstr.replace('</blockquote> <blockquote>','<br/>')
     foutstr=foutstr.replace('</li></ul><ul><li>','</li><li>')
     foutstr=foutstr.replace('</p><p>','<br/>')
     foutstr=foutstr.replace('</p><br/> <p>','<br/>')
     foutstr=foutstr.replace('\n\n','<br/>\n<br/>\n').replace('  \n','  <br/>\n')
+    foutstr=foutstr.replace('<br/>\n<br/>\n</p>','\n</p>')
 
     f_r.write(foutstr)
     f_r.close()

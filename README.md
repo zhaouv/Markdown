@@ -9,7 +9,8 @@
 + '\n\n' -> '\n\n&lt;br/&gt;&lt;br/&gt;'
 + '&nbsp;&nbsp;\n' -> '&nbsp;&nbsp;\n&lt;br/&gt;'
 + merge blockquote
-+ fix bug in img
++ fix bug in img ang table
++ add '&lt;p&gt;&lt;/p&gt;' for text
 + using [github-markdown-css](https://github.com/sindresorhus/github-markdown-css)
 
  *only change for Windows*

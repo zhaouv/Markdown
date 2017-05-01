@@ -78,5 +78,3 @@ $$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
 
 1. check ordered list agagin
 2. okay
-
-
