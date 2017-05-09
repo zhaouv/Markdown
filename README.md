@@ -12,6 +12,7 @@
 + fix bug in img ang table
 + add '&lt;p&gt;&lt;/p&gt;' for text
 + using [github-markdown-css](https://github.com/sindresorhus/github-markdown-css)
++ using [highlight.js](https://github.com/isagalaev/highlight.js)
 
  *only change for Windows*
 

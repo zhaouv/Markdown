@@ -30,6 +30,7 @@ is_paragraph=False
 temp_table_first_line=[]
 temp_table_first_line_str=""
 
+need_highlight=False
 need_mathjax=False
 
 
@@ -37,7 +38,7 @@ need_mathjax=False
 
 def test_state(input):
     Code_List=["python\n","c++\n","bash\n","c\n"]
-    global table_state,orderList_state,block_state,is_code,temp_table_first_line,temp_table_first_line_str,is_paragraph
+    global table_state,orderList_state,block_state,is_code,temp_table_first_line,temp_table_first_line_str,is_paragraph,need_highlight
 
     result=input
 
@@ -46,19 +47,20 @@ def test_state(input):
 
     # BEGIN: block and code block
     if a and block_state==BLOCK.Init:
-        result="<pre><code>"
+        result="<pre>"
         block_state=BLOCK.Block
 
     elif len(input)>4 and input[0:3]=='```' and (input[3:4]=="c" or input[3:6]=="c++" or input[3:9]=="python") and block_state==BLOCK.Init:
         block_state=BLOCK.Block
-        result="<pre><code codetype=\""+input[3:-1]+"\">"
+        result="<pre><code class=\""+input[3:-1]+"\">"
         is_code=True
+        need_highlight=True
 
     elif block_state==BLOCK.Block and a:
         if is_code:
             result="</code></pre>"
         else:
-            result="</code></pre>"
+            result="</pre>"
         block_state=BLOCK.Init
         is_code=False
 
@@ -358,6 +360,8 @@ def run(source_file,dest_file,dest_pdf_file="",only_pdf=False):
 
 
     f_r=codecs.open(dest_name,encoding="utf-8",mode="w")
+
+
     foutstr+=("""<!doctype html>
 <html>
 <head>
@@ -365,7 +369,13 @@ def run(source_file,dest_file,dest_pdf_file="",only_pdf=False):
 <link rel="stylesheet" href="github-markdown.css">
 <!--https://github.com/sindresorhus/github-markdown-css-->
 <style>.markdownboard{box-sizing:border-box;border: 1px solid #ddd;border-radius: 3px;min-width:200px;max-width:980px;margin:0 auto;padding:45px;}</style>
-</head>
+""")
+
+    
+    if True:
+        foutstr+='<link href="http://cdn.bootcss.com/highlight.js/8.0/styles/github.min.css" rel="stylesheet">\n'
+
+    foutstr+=("""</head>
 <body>
 <div class="markdownboard"><article class="markdown-body">
 """)
@@ -384,6 +394,10 @@ def run(source_file,dest_file,dest_pdf_file="",only_pdf=False):
             foutstr+=(result)
 
     foutstr+=("</article></div>\n")
+
+    global need_highlight
+    if need_highlight:
+        foutstr+='<script src="http://cdn.bootcss.com/highlight.js/8.0/highlight.min.js"></script>\n<script >hljs.initHighlightingOnLoad();</script>\n'
 
     global need_mathjax
     if need_mathjax:

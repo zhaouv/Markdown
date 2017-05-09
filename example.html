@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="github-markdown.css">
 <!--https://github.com/sindresorhus/github-markdown-css-->
 <style>.markdownboard{box-sizing:border-box;border: 1px solid #ddd;border-radius: 3px;min-width:200px;max-width:980px;margin:0 auto;padding:45px;}</style>
+<link href="http://cdn.bootcss.com/highlight.js/8.0/styles/github.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="markdownboard"><article class="markdown-body">
@@ -55,9 +56,9 @@ There are six levels of headings. They correspond with the six levels of HTML he
 </h2><p>  <img src=http://7xi9ka.com1.z0.glb.clouddn.com/duangao.jpg alt="image" />
  
 </p> <h2> Block 
-</h2><pre><code><p>input some words&nbsp<br/>&nbsp&nbsp&nbsp&nbspjust *try* it&nbsp<br/>okay&nbsp</p></code></pre>
+</h2><pre><p>input some words&nbsp<br/>&nbsp&nbsp&nbsp&nbspjust *try* it&nbsp<br/>okay&nbsp</p></pre>
 <h2> Python block
-</h2><pre><code codetype="python"><p>def func():&nbsp<br/>    print()&nbsp</p></code></pre>
+</h2><pre><code class="python"><p>def func():&nbsp<br/>    print()&nbsp</p></code></pre>
 <h2> Table
 </h2>
 <table><thead><tr><th>first </th><th> <i>second</i> </th><th> <b>third</b></th></tr></thead><tbody><tr><td><b>cell<sup>1</sup></b></td><td>cell<sup>2</sup></td><td>cell<sup>3</sup></td></tr><tr><td>cell<sup>4</sup></td><td>cell<sup>5</sup></td><td>cell<sup>6</sup></td></tr><tr><td>cell<sup>7</sup></td><td>cell<sup>8</sup></td><td>cell<sup>9</sup></td></tr></tbody></table>
@@ -72,5 +73,7 @@ $$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
 <ol><li> check ordered list agagin
 </li><li> okay
 </li></article></div>
+<script src="http://cdn.bootcss.com/highlight.js/8.0/highlight.min.js"></script>
+<script >hljs.initHighlightingOnLoad();</script>
 <script type="text/x-mathjax-config">    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </body></html>
